@@ -3,12 +3,26 @@ import './App.css';
 import Header from "./MyComponents/Header"
 import {Todos} from "./MyComponents/Todos"
 import {Footer} from "./MyComponents/Footer"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {AddTodo} from "./MyComponents/AddTodo"
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
+import {About} from "./MyComponents/About"
+
 
 
 function App() {
 
+  let initTodo;
+  if(localStorage.getItem("todosarray")===null){
+    initTodo = [];
+  }else{
+    initTodo = JSON.parse(localStorage.getItem("todosarray"));
+  }
   const aadtd = (title,desc) =>{
     let sno
     if (todosarray.length ==0){
@@ -22,6 +36,9 @@ function App() {
       desc:desc
     }
     settodosarray([...todosarray,zz])
+
+    
+    
   }
   const onDelete = (td) =>{
     console.log(td)
@@ -29,32 +46,38 @@ function App() {
     settodosarray(todosarray.filter((e)=>{
       return e!==td
     }))
+
+    localStorage.setItem("todosarray",JSON.stringify(todosarray))
   }
 
-  const [todosarray, settodosarray] = useState([
-    {
-      sno : 1,
-      title : "Learn React",
-      desc : "Learn React to get good placements"
-    },
-    {
-      sno : 2,
-      title : "Learn DS Algo",
-      desc : "Learn React to get good placements"
-    },
-    {
-      sno : 3,
-      title : "Learn Javacript",
-      desc : "Learn React to get good placements"
-    }
-  ]);
+  const [todosarray, settodosarray] = useState([initTodo]);
+  useEffect(() => {
+    localStorage.setItem("todosarray",JSON.stringify(todosarray))
+    
+  }, [todosarray])
 
   return (
     <>
+    <Router>
       <Header title="Todo's List" issearch={false}/>
-      <AddTodo aadtd = {aadtd}/>
-      <Todos todoss={todosarray} onDelete = {onDelete} />
+
+      <Switch>
+          <Route exact path="/about">
+            <About />
+          </Route>
+          <Route exact path="/" render = {() => {
+            return (
+            <>
+            <AddTodo aadtd = {aadtd}/>
+            <Todos todoss={todosarray} onDelete = {onDelete} />
+            </>)
+          }}>
+          </Route>
+        </Switch>
+
+      
       <Footer/>
+      </Router>
     </>
   );
 }
